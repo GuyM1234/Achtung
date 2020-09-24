@@ -4,7 +4,7 @@ import sys
 import math
 from time import sleep
 import copy
-
+import
 
 pygame.init()
 width = 1200
