@@ -25,7 +25,7 @@ SQUARESIZE = 100
 class player(object):
     def __init__(self,num_player,move):
         self.color = color_list[num_player]
-        self.width = 2
+        self.width = 3
         self.dir = random.randint(1,360)
         self.posx = random.randint(200,700)
         self.posy = random.randint(200,700)  
@@ -33,12 +33,13 @@ class player(object):
         self.points = 0
         self.left= move[0]
         self.right = move[1]
+        self.mult_forward_move = 5
 
     def legal_move(self, screen):
         if self.is_border_touched():
-            return False
-        posx = self.posx + math.cos(self.dir) * self.width * 2
-        posy = self.posy + math.sin(self.dir) * self.width * 2
+            return False        
+        posx = self.posx + math.cos(self.dir) * self.mult_forward_move
+        posy = self.posy + math.sin(self.dir) * self.mult_forward_move
         color = screen.get_at((round(posx),round(posy)))
         if color != BLACK:
             return False
@@ -62,29 +63,14 @@ class ability(object):
         self.posy = posy
      
 class big_width(ability):
-    
     def execute(self,player):
         player.width = player.width*2
-    
-    def legal_ability_move(self,player):
-        posx = player.posx + math.cos(player.dir) * 7
-        posy = player.posy + math.sin(player.dir) * 7
-        color = screen.get_at((round(posx),round(posy)))
-        if color != BLACK:
-            return False
-        return True
+        player.mult_forward_move = 8
 
 class small_width(ability):
     def execute(self,player):
         player.width = int(player.width/2)
-    
-    def legal_ability_move(self,player):
-        posx = player.posx + math.cos(player.dir) * 2
-        posy = player.posy + math.sin(player.dir) * 2
-        color = screen.get_at((round(posx),round(posy)))
-        if color != BLACK:
-            return False
-        return True
+        player.mult_forward_move = 4
 
 class clear_screen(ability):
     def execute(self,player):
@@ -111,21 +97,6 @@ def move_players(playing_list,player_list):
         else:
             playing_list[i].move()
         i += 1
-
-# def move_in_ability(playing_list,player_list,ability_list):
-#     for j in range(len(ability_list)):
-#             if ability_list[j].ability_touched(playing_list):
-#                 clear_ability(ability_list[j])
-#     i = 0
-#     while i < len(playing_list):
-#         if not playing_list[i].legal_move(screen):
-#             playing_list.remove(playing_list[i])
-#             i -= 1
-#             for j in range(len(playing_list)):
-#                 playing_list[j].points += 1
-#         else:
-#             playing_list[i].move()
-#         i += 1
             
 def update_players_dirs(playing_list, dir_list):
     for i in range(len(playing_list)):
@@ -197,7 +168,7 @@ def get_input_from_keys():
                 return event.key
 
 def create_ability(ability_list):
-    num = random.randrange(1,4)
+    num = random.randrange(2,3)
     found = False
     while not found:
         posx = random.randrange(100,801)
@@ -247,8 +218,8 @@ def check_square(posx,posy,ability_list,k):
 
 def abilitys_touched(playing_list,ability_list):
     for j in range(len(playing_list)):
-        posx = playing_list[j].posx + math.cos(playing_list[j].dir) * 4
-        posy = playing_list[j].posy + math.sin(playing_list[j].dir) * 4
+        posx = playing_list[j].posx + math.cos(playing_list[j].dir) * playing_list[j].mult_forward_move
+        posy = playing_list[j].posy + math.sin(playing_list[j].dir) * playing_list[j].mult_forward_move
         for k in range(len(ability_list)):
             if check_square(posx,posy,ability_list,k):
                 ability_list[k].execute(playing_list[j])
@@ -264,7 +235,7 @@ def run_round(move_list,scores):
     dir_list = [0,0,0,0,0]
     ability_list = []
     count_rounds = 20
-    while len(playing_list) >1:
+    while len(playing_list) >0:
         sleep(0.0070)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -284,7 +255,6 @@ def run_round(move_list,scores):
         
         if abilitys_touched(playing_list,ability_list):
             pass
-            # move_in_ability(playing_list,player_list,ability_list)   
         move_players(playing_list,player_list)
      
         if not (count_rounds % 300 > 0 and count_rounds % 300 < 20):
