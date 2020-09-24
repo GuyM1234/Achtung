@@ -5,7 +5,6 @@ import math
 from time import sleep
 import copy
 
-
 pygame.init()
 width = 1200
 height = 900
@@ -38,8 +37,8 @@ class player(object):
     def legal_move(self, screen):
         if self.is_border_touched():
             return False
-        posx = self.posx + math.cos(self.dir) * 4
-        posy = self.posy + math.sin(self.dir) * 4
+        posx = self.posx + math.cos(self.dir) * self.width * 2
+        posy = self.posy + math.sin(self.dir) * self.width * 2
         color = screen.get_at((round(posx),round(posy)))
         if color != BLACK:
             return False
@@ -57,13 +56,11 @@ class player(object):
             return True
         return False
 
-
 class ability(object):
     def __init__(self,posx,posy):
         self.posx = posx
         self.posy = posy
-   
-    
+     
 class big_width(ability):
     
     def execute(self,player):
@@ -77,7 +74,6 @@ class big_width(ability):
             return False
         return True
 
-
 class small_width(ability):
     def execute(self,player):
         player.width = int(player.width/2)
@@ -90,11 +86,9 @@ class small_width(ability):
             return False
         return True
 
-
 class clear_screen(ability):
     def execute(self,player):
         pygame.draw.rect(screen, BLACK, (0, 0, 900, 900))
-
 
 def update_board(playing_list):
     for i in range(len(playing_list)):
@@ -118,20 +112,20 @@ def move_players(playing_list,player_list):
             playing_list[i].move()
         i += 1
 
-def move_in_ability(playing_list,player_list,ability_list):
-    for j in range(len(ability_list)):
-            if ability_list[j].ability_touched(playing_list):
-                clear_ability(ability_list[j])
-    i = 0
-    while i < len(playing_list):
-        if not playing_list[i].legal_move(screen):
-            playing_list.remove(playing_list[i])
-            i -= 1
-            for j in range(len(playing_list)):
-                playing_list[j].points += 1
-        else:
-            playing_list[i].move()
-        i += 1
+# def move_in_ability(playing_list,player_list,ability_list):
+#     for j in range(len(ability_list)):
+#             if ability_list[j].ability_touched(playing_list):
+#                 clear_ability(ability_list[j])
+#     i = 0
+#     while i < len(playing_list):
+#         if not playing_list[i].legal_move(screen):
+#             playing_list.remove(playing_list[i])
+#             i -= 1
+#             for j in range(len(playing_list)):
+#                 playing_list[j].points += 1
+#         else:
+#             playing_list[i].move()
+#         i += 1
             
 def update_players_dirs(playing_list, dir_list):
     for i in range(len(playing_list)):
@@ -258,10 +252,11 @@ def abilitys_touched(playing_list,ability_list):
         for k in range(len(ability_list)):
             if check_square(posx,posy,ability_list,k):
                 ability_list[k].execute(playing_list[j])
-                del ability_list[ability_list[k]]
-                pygame.draw.rect(screen,BLACK,(ability.posx-15,ability.posy-15,30,30)) 
+                pygame.draw.rect(screen,BLACK,(ability_list[k].posx-15,ability_list[k].posy-15,30,30))
+                pygame.display.update()
+                ability_list.remove(ability_list[k])
                 return True
-        return False
+    return False
 
 def run_round(move_list,scores):
     player_list = create_players(move_list)
@@ -287,12 +282,11 @@ def run_round(move_list,scores):
                             
         update_players_dirs(playing_list,dir_list)
         
-        if abilitys_touched(playing_list,ability_list): 
-            move_in_ability(playing_list,player_list,ability_list)   
+        if abilitys_touched(playing_list,ability_list):
+            pass
+            # move_in_ability(playing_list,player_list,ability_list)   
         move_players(playing_list,player_list)
-        
-
-        
+     
         if not (count_rounds % 300 > 0 and count_rounds % 300 < 20):
             update_board(playing_list)
         if count_rounds % 500 == 0:
@@ -329,4 +323,3 @@ def main():
     pygame.time.wait(10000)
 
 main()
-
