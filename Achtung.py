@@ -4,6 +4,7 @@ import sys
 import math
 from time import sleep
 import copy
+import datetime
 
 pygame.init()
 width = 1200
@@ -266,11 +267,15 @@ def run_round(move_list,scores):
         update_players_dirs(playing_list,dir_list)
         move_players(playing_list,player_list)
      
-        if not (count_rounds % 300 > 0 and count_rounds % 300 < 25):
+        seconds = int(x.strftime("%S"))
+        if not (seconds % 5 > 0 and seconds % 5 < 5):
             update_board(playing_list)
-        if count_rounds % 500 == 0:
-            create_ability(ability_list)
-        count_rounds += 1
+
+        # if not (count_rounds % 300 > 0 and count_rounds % 300 < 35):
+        #     update_board(playing_list)
+        # if count_rounds % 500 == 0:
+        #     create_ability(ability_list)
+        # count_rounds += 1
     update_scores(scores,player_list)
     
 def is_game_over(scores):
