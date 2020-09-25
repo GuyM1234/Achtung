@@ -78,8 +78,8 @@ class clear_screen(ability):
         pygame.draw.rect(screen, BLACK, (0, 0, 900, 900))
 
 def update_board(playing_list):
-    for i in range(len(playing_list)):
-        pygame.draw.circle(screen, playing_list[i].color, [round(playing_list[i].posx), round(playing_list[i].posy)], playing_list[i].width)
+    for player in playing_list:
+        pygame.draw.circle(screen, player.color, [round(player.posx), round(player.posy)], player.width)
     pygame.display.update()
 
 def message_to_screen(msg, color ,FONT, posx, posy):
@@ -88,21 +88,20 @@ def message_to_screen(msg, color ,FONT, posx, posy):
     pygame.display.update()
 
 def move_players(playing_list,player_list):
-    i = 0
-    while i < len(playing_list):
-        if not playing_list[i].legal_move(screen):
-            playing_list.remove(playing_list[i])
-            i -= 1
-            for j in range(len(playing_list)):
-                playing_list[j].points += 1
+    for player1 in playing_list:
+        if not player1.legal_move(screen):
+            playing_list.remove(player1)
+            for player2 in playing_list:
+                player2.points += 1
         else:
-            playing_list[i].move()
-        i += 1
+            player1.move()
             
 def update_players_dirs(playing_list, dir_list):
-    for i in range(len(playing_list)):
-        if playing_list[i].is_playing:
-            playing_list[i].update_dir(dir_list[i])
+    i = 0
+    for player in playing_list:
+        if player.is_playing:
+            player.update_dir(dir_list[i])
+            i += 1
 
 def create_players(move_list):
     player_list = []
