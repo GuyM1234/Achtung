@@ -25,7 +25,7 @@ SQUARESIZE = 100
 class player(object):
     def __init__(self,num_player,move):
         self.color = color_list[num_player]
-        self.width = 3
+        self.width = 4
         self.dir = random.randint(1,360)
         self.posx = random.randint(200,700)
         self.posy = random.randint(200,700)  
@@ -33,7 +33,7 @@ class player(object):
         self.points = 0
         self.left= move[0]
         self.right = move[1]
-        self.mult_forward_move = 5
+        self.mult_forward_move = self.width + 2
 
     def legal_move(self, screen):
         if self.is_border_touched():
@@ -65,12 +65,10 @@ class ability(object):
 class big_width(ability):
     def execute(self,player):
         player.width = player.width*2
-        player.mult_forward_move = 8
 
 class small_width(ability):
     def execute(self,player):
         player.width = int(player.width/2)
-        player.mult_forward_move = 4
 
 class clear_screen(ability):
     def execute(self,player):
@@ -202,30 +200,30 @@ def create_ability(ability_list):
         ability_list.append(clear_screen(posx,posy))
         pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))
 
-def check_square(posx,posy,ability_list,k):
+def check_square(posx,posy,ability):
     i = -15
     while i <= 15:
-        if round(posx) == ability_list[k].posx + i and round(posy) == ability_list[k].posy - 15:
+        if round(posx) == ability.posx + i and round(posy) == ability.posy - 15:
             return True
-        if round(posx) == ability_list[k].posx - 15 and round(posy) == ability_list[k].posy + i:
+        if round(posx) == ability.posx - 15 and round(posy) == ability.posy + i:
             return True
-        if round(posx) == ability_list[k].posx + 15 and round(posy) == ability_list[k].posy + i:
+        if round(posx) == ability.posx + 15 and round(posy) == ability.posy + i:
             return True
-        if round(posx) == ability_list[k].posx + i and round(posy) == ability_list[k].posy + 15:
+        if round(posx) == ability.posx + i and round(posy) == ability.posy + 15:
             return True
         i+=1
     return False
 
 def abilitys_touched(playing_list,ability_list):
-    for j in range(len(playing_list)):
-        posx = playing_list[j].posx + math.cos(playing_list[j].dir) * playing_list[j].mult_forward_move
-        posy = playing_list[j].posy + math.sin(playing_list[j].dir) * playing_list[j].mult_forward_move
-        for k in range(len(ability_list)):
-            if check_square(posx,posy,ability_list,k):
-                ability_list[k].execute(playing_list[j])
-                pygame.draw.rect(screen,BLACK,(ability_list[k].posx-15,ability_list[k].posy-15,30,30))
+    for player in (playing_list):
+        posx = player.posx + math.cos(player.dir) * player.mult_forward_move
+        posy = player.posy + math.sin(player.dir) * player.mult_forward_move
+        for ability in (ability_list):
+            if check_square(posx,posy,ability):
+                ability.execute(player)
+                pygame.draw.rect(screen,BLACK,(ability.posx-15,ability.posy-15,30,30))
                 pygame.display.update()
-                ability_list.remove(ability_list[k])
+                ability_list.remove(ability)
                 return True
     return False
 
@@ -235,7 +233,7 @@ def run_round(move_list,scores):
     dir_list = [0,0,0,0,0]
     ability_list = []
     count_rounds = 20
-    while len(playing_list) > 1:
+    while len(playing_list) > 0:
         sleep(0.0070)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -257,7 +255,7 @@ def run_round(move_list,scores):
             pass
         move_players(playing_list,player_list)
      
-        if not (count_rounds % 300 > 0 and count_rounds % 300 < 20):
+        if not (count_rounds % 300 > 0 and count_rounds % 300 < 25):
             update_board(playing_list)
         if count_rounds % 500 == 0:
             create_ability(ability_list)
