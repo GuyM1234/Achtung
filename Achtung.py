@@ -68,11 +68,19 @@ class big_width(ability):
         player.width = player.width*2
         player.mult_forward_move = player.width + 2
 
-class small_width(ability):
-    def execute(self,player):
-        player.width = int(player.width - 1)
+    def revert_ability(self,player):
+        player.width = player.width / 2
         player.mult_forward_move = player.width + 2
 
+class small_width(ability):
+    def execute(self,player):
+        player.width = player.width - 1
+        player.mult_forward_move = player.width + 2
+
+    def revert_ability(self,player):
+        player.width = player.width + 1
+        player.mult_forward_move = player.width + 2
+    
 class clear_screen(ability):
     def execute(self,player):
         pygame.draw.rect(screen, BLACK, (0, 0, 900, 900))
@@ -230,6 +238,7 @@ def abilitys_touched(playing_list,ability_list):
     return False
 
 def run_round(move_list,scores):
+    x = datetime.datetime.now()
     player_list = create_players(move_list)
     playing_list = copy.copy(player_list)
     dir_list = [0,0,0,0,0]
@@ -251,10 +260,10 @@ def run_round(move_list,scores):
                     if chr(event.key) == player_list[i].left or chr(event.key) == player_list[i].right:
                         dir_list[i] = 0
                             
-        update_players_dirs(playing_list,dir_list)
         
         if abilitys_touched(playing_list,ability_list):
             pass
+        update_players_dirs(playing_list,dir_list)
         move_players(playing_list,player_list)
      
         if not (count_rounds % 300 > 0 and count_rounds % 300 < 25):
