@@ -36,6 +36,7 @@ class player(object):
         self.mult_forward_move = self.width + 2
 
     def legal_move(self, screen):
+        
         if self.is_border_touched():
             return False        
         posx = self.posx + math.cos(self.dir) * self.mult_forward_move
@@ -65,10 +66,12 @@ class ability(object):
 class big_width(ability):
     def execute(self,player):
         player.width = player.width*2
+        player.mult_forward_move = player.width + 2
 
 class small_width(ability):
     def execute(self,player):
-        player.width = int(player.width/2)
+        player.width = int(player.width - 1)
+        player.mult_forward_move = player.width + 2
 
 class clear_screen(ability):
     def execute(self,player):
@@ -166,7 +169,7 @@ def get_input_from_keys():
                 return event.key
 
 def create_ability(ability_list):
-    num = random.randrange(1,4)
+    num = random.randrange(1,3)
     found = False
     while not found:
         posx = random.randrange(100,801)
