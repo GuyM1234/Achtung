@@ -4,7 +4,6 @@ import sys
 import math
 from time import sleep
 import copy
-import datetime
 
 pygame.init()
 width = 1200
@@ -22,6 +21,7 @@ RED = (255,0,0)
 GREEN = (0,255,0)
 color_list = [BLUE, ORNAGE, RED, GREEN, WHITE]
 SQUARESIZE = 100
+sss
 
 class player(object):
     def __init__(self,num_player,move):
