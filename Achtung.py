@@ -69,10 +69,6 @@ class big_width(ability):
         player.width = player.width*2
         player.mult_forward_move = player.width + 2
 
-    def revert_ability(self,player):
-        player.width = player.width / 2
-        player.mult_forward_move = player.width + 2
-
 class small_width(ability):
     def execute(self,player):
         player.width = player.width - 1
@@ -177,7 +173,7 @@ def get_input_from_keys():
                 return event.key
 
 def create_ability(ability_list):
-    num = random.randrange(1,3)
+    num = random.randrange(1,4)
     found = False
     while not found:
         posx = random.randrange(100,801)
@@ -234,18 +230,17 @@ def abilitys_touched(playing_list,ability_list):
                 ability.execute(player)
                 pygame.draw.rect(screen,BLACK,(ability.posx-15,ability.posy-15,30,30))
                 pygame.display.update()
-                ability_list.remove(ability)
-                return True
-    return False
+                return ability                
+    return 0
 
 def run_round(move_list,scores):
-    x = datetime.datetime.now()
     player_list = create_players(move_list)
     playing_list = copy.copy(player_list)
     dir_list = [0,0,0,0,0]
     ability_list = []
-    count_rounds = 20
+    get_in = True
     while len(playing_list) > 0:
+        x = datetime.datetime.now()
         sleep(0.0070)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -262,14 +257,23 @@ def run_round(move_list,scores):
                         dir_list[i] = 0
                             
         
-        if abilitys_touched(playing_list,ability_list):
+        if abilitys_touched(playing_list,ability_list) !=:
             pass
         update_players_dirs(playing_list,dir_list)
         move_players(playing_list,player_list)
-     
+
         seconds = int(x.strftime("%S"))
-        if not (seconds % 5 > 0 and seconds % 5 < 5):
+        milliseconds = int(x.strftime("%f"))
+        sum = seconds * 1000000 + milliseconds
+        if not (sum % 4500000 >= 0 and sum % 4500000 <= 200000):
             update_board(playing_list)
+        if seconds % 7 == 0:
+            if get_in:
+                create_ability(ability_list)
+                get_in = False  
+        else:
+            get_in = True
+        
 
         # if not (count_rounds % 300 > 0 and count_rounds % 300 < 35):
         #     update_board(playing_list)
