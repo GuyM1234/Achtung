@@ -168,7 +168,7 @@ def get_input_from_keys():
                 return event.key
 
 def create_ability(ability_list):
-    num = random.randrange(2,3)
+    num = random.randrange(1,4)
     found = False
     while not found:
         posx = random.randrange(100,801)
@@ -235,7 +235,7 @@ def run_round(move_list,scores):
     dir_list = [0,0,0,0,0]
     ability_list = []
     count_rounds = 20
-    while len(playing_list) >0:
+    while len(playing_list) > 1:
         sleep(0.0070)
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
