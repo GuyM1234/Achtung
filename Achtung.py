@@ -95,12 +95,13 @@ def move_players(playing_list,player_list):
                 player2.points += 1
         else:
             player1.move()
-        i += 1
             
 def update_players_dirs(playing_list, dir_list):
-    for i in range(len(playing_list)):
-        if playing_list[i].is_playing:
-            playing_list[i].update_dir(dir_list[i])
+    i = 0
+    for player in playing_list:
+        if player.is_playing:
+            player.update_dir(dir_list[i])
+            i += 1
 
 def create_players(move_list):
     player_list = []
