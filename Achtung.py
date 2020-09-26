@@ -257,7 +257,7 @@ def run_round(move_list,scores):
                         dir_list[i] = 0
                             
         
-        if abilitys_touched(playing_list,ability_list) !=:
+        if abilitys_touched(playing_list,ability_list):
             pass
         update_players_dirs(playing_list,dir_list)
         move_players(playing_list,player_list)
