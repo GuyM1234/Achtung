@@ -258,6 +258,7 @@ def run_round(move_list,scores):
                         dir_list[i] = 0
                             
         
+<<<<<<< Updated upstream
         if abilitys_touched(playing_list,ability_list):
             pass
         update_players_dirs(playing_list,dir_list)
@@ -265,6 +266,17 @@ def run_round(move_list,scores):
 
         seconds = int(x.strftime("%S"))
         milliseconds = int(x.strftime("%f"))
+=======
+        if ability_touched(playing_list,ability_list,active_ability_list):
+            active_ability_list[-1][0].execute(active_ability_list[-1][1])
+            clear_ability(active_ability_list[-1][0],ability_list)
+            if seconds >= 53:
+                num = 60 - seconds
+                active_ability_list[-1][0].time_end = 7 - num
+            else:
+                active_ability_list[-1][0].time_end = seconds + 7
+
+>>>>>>> Stashed changes
         sum = seconds * 1000000 + milliseconds
         if not (sum % 4500000 >= 0 and sum % 4500000 <= 200000):
             update_board(playing_list)
@@ -276,11 +288,8 @@ def run_round(move_list,scores):
             get_in = True
         
 
-        # if not (count_rounds % 300 > 0 and count_rounds % 300 < 35):
-        #     update_board(playing_list)
-        # if count_rounds % 500 == 0:
-        #     create_ability(ability_list)
-        # count_rounds += 1
+        update_players_dirs(playing_list,dir_list)
+        move_players(playing_list,player_list)
     update_scores(scores,player_list)
     
 def is_game_over(scores):
