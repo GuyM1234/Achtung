@@ -37,7 +37,6 @@ class player(object):
         self.mult_forward_move = self.width + 2
 
     def legal_move(self, screen):
-        
         if self.is_border_touched():
             return False        
         posx = self.posx + math.cos(self.dir) * self.mult_forward_move
@@ -70,8 +69,10 @@ class big_width(ability):
         player.width = player.width * 2
         player.mult_forward_move = player.width + 2
 
-    def revert_ability(self,player):
+    def revert_ability1(self,player):
         player.width = int(player.width / 2)
+
+    def revert_ability2(self,player):
         player.mult_forward_move = player.width + 2
 
 class small_width(ability):
@@ -251,12 +252,13 @@ def run_round(move_list,scores):
     ability_list = []
     get_in = True
     active_ability_list = []
+    ability_before_finish = []
     while len(playing_list) > 0:
 
         x = datetime.datetime.now()
         seconds = int(x.strftime("%S"))
         milliseconds = int(x.strftime("%f"))
-        sleep(0.0070)
+        sleep(0.007)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -281,10 +283,6 @@ def run_round(move_list,scores):
             else:
                 active_ability_list[-1][0].time_end = seconds + 7
         
-        update_players_dirs(playing_list,dir_list)
-        move_players(playing_list,player_list)
-
-
         sum = seconds * 1000000 + milliseconds
         if not (sum % 4500000 >= 0 and sum % 4500000 <= 200000):
             update_board(playing_list)
@@ -297,14 +295,18 @@ def run_round(move_list,scores):
 
         for ability in active_ability_list:
             if ability[0].time_end == seconds:
-                ability[0].revert_ability(ability[1])
+                ability[0].revert_ability1(ability[1])
+                ability[0].time_end += 1
+                ability_before_finish.append(ability)
                 active_ability_list.remove(ability)
+        
+        for ability in ability_before_finish:
+            if ability[0].time_end == seconds:
+                ability[0].revert_ability2(ability[1])
+                ability_before_finish.remove(ability)
 
-        # if not (count_rounds % 300 > 0 and count_rounds % 300 < 35):
-        #     update_board(playing_list)
-        # if count_rounds % 500 == 0:
-        #     create_ability(ability_list)
-        # count_rounds += 1
+        update_players_dirs(playing_list,dir_list)
+        move_players(playing_list,player_list)
     update_scores(scores,player_list)
     
 def is_game_over(scores):
