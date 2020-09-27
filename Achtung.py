@@ -312,11 +312,13 @@ def run_round(move_list,scores):
                 active_ability_list[-1][0].time_end = 7 - num
             else:
                 active_ability_list[-1][0].time_end = seconds + 7
-                
+
         for ability in active_ability_list:
             if ability[0].time_end == seconds:
                 for i in range(ability[1].width):
-                    pygame.draw.rect(screen, WHITE, (round(ability[1].posx)+i ,round(ability[1].posy)+i , 1, 1))
+                    posx = ability[1].posx + ability[1].posx * i 
+                    posy = ability[1].posy + ability[1].posy * i 
+                    pygame.draw.rect(screen, WHITE, (round(posx) ,round(posy) , 1, 1))
                     pygame.display.update()
                 ability[0].revert_ability(ability[1])
                 active_ability_list.remove(ability)
