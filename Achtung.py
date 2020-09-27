@@ -23,7 +23,6 @@ GREEN = (0,255,0)
 color_list = [BLUE, ORNAGE, RED, GREEN, WHITE]
 SQUARESIZE = 100
 
-
 class player(object):
     def __init__(self,num_player,move):
         self.color = color_list[num_player]
@@ -64,10 +63,15 @@ class ability(object):
     def __init__(self,posx,posy):
         self.posx = posx
         self.posy = posy
+        self.time_end = -1
      
 class big_width(ability):
     def execute(self,player):
-        player.width = player.width*2
+        player.width = player.width * 2
+        player.mult_forward_move = player.width + 2
+
+    def revert_ability(self,player):
+        player.width = int(player.width / 2)
         player.mult_forward_move = player.width + 2
 
 class small_width(ability):
@@ -82,6 +86,9 @@ class small_width(ability):
 class clear_screen(ability):
     def execute(self,player):
         pygame.draw.rect(screen, BLACK, (0, 0, 900, 900))
+    
+    def revert_ability(self,player):
+        pass
 
 def update_board(playing_list):
     for player in playing_list:
@@ -174,7 +181,7 @@ def get_input_from_keys():
                 return event.key
 
 def create_ability(ability_list):
-    num = random.randrange(1,4)
+    num = random.randrange(1,2)
     found = False
     while not found:
         posx = random.randrange(100,801)
@@ -222,27 +229,35 @@ def check_square(posx,posy,ability):
         i+=1
     return False
 
-def abilitys_touched(playing_list,ability_list):
+def ability_touched(playing_list,ability_list,active_ability_list):
     for player in (playing_list):
         posx = player.posx + math.cos(player.dir) * player.mult_forward_move
         posy = player.posy + math.sin(player.dir) * player.mult_forward_move
         for ability in (ability_list):
             if check_square(posx,posy,ability):
-                ability.execute(player)
-                pygame.draw.rect(screen,BLACK,(ability.posx-15,ability.posy-15,30,30))
-                pygame.display.update()
-                return ability                
-    return 0
+                active_ability_list.append((ability,player))
+                return True           
+    return False
 
+def clear_ability(ability,ability_list):
+    pygame.draw.rect(screen,BLACK,(ability.posx-15,ability.posy-15,30,30))
+    pygame.display.update()
+    ability_list.remove(ability)
+    
 def run_round(move_list,scores):
     player_list = create_players(move_list)
     playing_list = copy.copy(player_list)
     dir_list = [0,0,0,0,0]
     ability_list = []
     get_in = True
+    active_ability_list = []
     while len(playing_list) > 0:
+
         x = datetime.datetime.now()
+        seconds = int(x.strftime("%S"))
+        milliseconds = int(x.strftime("%f"))
         sleep(0.0070)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
@@ -256,15 +271,20 @@ def run_round(move_list,scores):
                 for i in range(len(players_index)):
                     if chr(event.key) == player_list[i].left or chr(event.key) == player_list[i].right:
                         dir_list[i] = 0
-                            
         
-        if abilitys_touched(playing_list,ability_list):
-            pass
+        if ability_touched(playing_list,ability_list,active_ability_list):
+            active_ability_list[-1][0].execute(active_ability_list[-1][1])
+            clear_ability(active_ability_list[-1][0],ability_list)
+            if seconds >= 53:
+                num = 60 - seconds
+                active_ability_list[-1][0].time_end = 7 - num
+            else:
+                active_ability_list[-1][0].time_end = seconds + 7
+        
         update_players_dirs(playing_list,dir_list)
         move_players(playing_list,player_list)
 
-        seconds = int(x.strftime("%S"))
-        milliseconds = int(x.strftime("%f"))
+
         sum = seconds * 1000000 + milliseconds
         if not (sum % 4500000 >= 0 and sum % 4500000 <= 200000):
             update_board(playing_list)
@@ -274,7 +294,11 @@ def run_round(move_list,scores):
                 get_in = False  
         else:
             get_in = True
-        
+
+        for ability in active_ability_list:
+            if ability[0].time_end == seconds:
+                ability[0].revert_ability(ability[1])
+                active_ability_list.remove(ability)
 
         # if not (count_rounds % 300 > 0 and count_rounds % 300 < 35):
         #     update_board(playing_list)
