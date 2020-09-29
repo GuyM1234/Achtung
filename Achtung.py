@@ -183,7 +183,7 @@ def get_input_from_keys():
                 return event.key
 
 def create_ability(ability_list):
-    num = random.randrange(1,2)
+    num = random.randrange(1,4)
     found = False
     while not found:
         posx = random.randrange(100,801)
@@ -246,14 +246,21 @@ def clear_ability(ability,ability_list):
     pygame.display.update()
     ability_list.remove(ability)
     
-def is_ability_expires(active_ability_list):
+def check_expired(active_ability_list,seconds):
     for ability in active_ability_list:
-            if ability[0].time_end == seconds:
-                ability[0].revert_ability(ability[1])
-                for i in range(ability[1].width):
-                    pygame.draw.circle(screen, BLACK, [round(ability[1].posx)+i, round(ability[1].posy)+i], 1)
-                active_ability_list.remove(ability)
-                
+        if ability[0].time_end == seconds:
+            posx1 = ability[1].posx + math.cos(ability[1].dir + 90) * (ability[1].width + 2)
+            posy1 = ability[1].posy + math.sin(ability[1].dir + 90) * (ability[1].width + 2)
+            posx2 = ability[1].posx + math.cos(ability[1].dir + 44.69) * ((ability[1].width)*(1.5) + 2)
+            posy2 = ability[1].posy + math.sin(ability[1].dir + 44.69) * ((ability[1].width)*(1.5) + 2)
+            posx3 = ability[1].posx + math.cos(ability[1].dir - 44.69) * ((ability[1].width)*(1.5) + 2)
+            posy3 = ability[1].posy + math.sin(ability[1].dir - 44.69) * ((ability[1].width)*(1.5) + 2)
+            posx4 = ability[1].posx + math.cos(ability[1].dir - 90) * (ability[1].width + 2)
+            posy4 = ability[1].posy + math.sin(ability[1].dir - 90) * (ability[1].width + 2)
+            pygame.draw.polygon(screen, BLACK, [[round(posx1),round(posy1)],[round(posx2),round(posy2)],[round(posx3),round(posy3)],[round(posx4),round(posy4)]])
+            pygame.display.update()
+            ability[0].revert_ability(ability[1])
+            active_ability_list.remove(ability)
 
 def run_round(move_list,scores):
     player_list = create_players(move_list)
@@ -284,6 +291,9 @@ def run_round(move_list,scores):
                     if chr(event.key) == player_list[i].left or chr(event.key) == player_list[i].right:
                         dir_list[i] = 0
 
+        update_players_dirs(playing_list,dir_list)
+        move_players(playing_list,player_list)
+
         if ability_touched(playing_list,ability_list,active_ability_list):
             active_ability_list[-1][0].execute(active_ability_list[-1][1])
             clear_ability(active_ability_list[-1][0],ability_list)
@@ -292,7 +302,10 @@ def run_round(move_list,scores):
                 active_ability_list[-1][0].time_end = 7 - num
             else:
                 active_ability_list[-1][0].time_end = seconds + 7
-        
+
+        if len(active_ability_list) > 0:
+            check_expired(active_ability_list,seconds)
+
 
         sum = seconds * 1000000 + milliseconds
         if not (sum % 4500000 >= 0 and sum % 4500000 <= 200000):
@@ -303,30 +316,6 @@ def run_round(move_list,scores):
                 get_in = False  
         else:
             get_in = True
-
-        if ability_touched(playing_list,ability_list,active_ability_list):
-            active_ability_list[-1][0].execute(active_ability_list[-1][1])
-            clear_ability(active_ability_list[-1][0],ability_list)
-            if seconds >= 53:
-                num = 60 - seconds
-                active_ability_list[-1][0].time_end = 7 - num
-            else:
-                active_ability_list[-1][0].time_end = seconds + 7
-
-        for ability in active_ability_list:
-            if ability[0].time_end == seconds:
-                for i in range(ability[1].width):
-                    posx = ability[1].posx + ability[1].posx * i 
-                    posy = ability[1].posy + ability[1].posy * i 
-                    pygame.draw.rect(screen, WHITE, (round(posx) ,round(posy) , 1, 1))
-                    pygame.display.update()
-                ability[0].revert_ability(ability[1])
-                active_ability_list.remove(ability)
-        
-
-
-        update_players_dirs(playing_list,dir_list)
-        move_players(playing_list,player_list)
 
     update_scores(scores,player_list)
     
