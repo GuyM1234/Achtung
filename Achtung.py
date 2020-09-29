@@ -6,6 +6,7 @@ from time import sleep
 import copy
 import datetime
 
+
 pygame.init()
 width = 1200
 height = 900
@@ -24,8 +25,8 @@ color_list = [BLUE, ORNAGE, RED, GREEN, WHITE]
 SQUARESIZE = 100
 
 class player(object):
-    def __init__(self,num_player,move):
-        self.color = color_list[num_player]
+    def __init__(self,move,color):
+        self.color = color
         self.width = 4
         self.dir = random.randint(1,360)
         self.posx = random.randint(200,700)
@@ -121,7 +122,7 @@ def update_players_dirs(playing_list, dir_list):
 def create_players(move_list):
     player_list = []
     for i in range(len(players_index)):
-        player_list.append(player(players_index[i], move_list[i]))
+        player_list.append(player(move_list[i],color_list[players_index[i]]))
     return player_list
 
 def update_scores(scores, player_list):
