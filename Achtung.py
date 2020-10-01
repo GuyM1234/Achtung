@@ -6,77 +6,50 @@ from time import sleep
 import copy
 import datetime
 from player import player
+from ability import ability
+from ability import big_width
+from ability import small_width
+from ability import clear_screen
 
 
 pygame.init()
 width = 1200
 height = 900
-size = (width,height)
+size = (width, height)
 screen = pygame.display.set_mode(size)
-FONTMENU = pygame.font.SysFont(None ,60)
-FONT = pygame.font.SysFont(None ,40)
-SMALLFONT = pygame.font.SysFont(None ,30)
-BLACK = (0,0,0)
-WHITE = (255,255,255)
-BLUE = (0,0,255)
-ORNAGE = (255,127,80)
-RED = (255,0,0)
-GREEN = (0,255,0)
+FONTMENU = pygame.font.SysFont(None, 60)
+FONT = pygame.font.SysFont(None, 40)
+SMALLFONT = pygame.font.SysFont(None, 30)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+BLUE = (0, 0, 255)
+ORNAGE = (255, 127, 80)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
 color_list = [BLUE, ORNAGE, RED, GREEN, WHITE]
 SQUARESIZE = 100
 
 
-class ability(object):
-    def __init__(self,posx,posy):
-        self.posx = posx
-        self.posy = posy
-        self.time_end = -1
-     
-class big_width(ability):
-    def execute(self,player):
-        player.width = player.width * 2
-        player.mult_forward_move = player.width + 2
 
-    def revert_ability1(self,player):
-        player.width = int(player.width / 2)
-
-    def revert_ability2(self,player):
-        player.mult_forward_move = player.width + 2
-        
-
-class small_width(ability):
-    def execute(self,player):
-        player.width = player.width - 1
-        player.mult_forward_move = player.width + 2
-
-    def revert_ability(self,player):
-        player.width = player.width + 1
-        player.mult_forward_move = player.width + 2
-        
-    
-class clear_screen(ability):
-    def execute(self,player):
-        pygame.draw.rect(screen, BLACK, (0, 0, 900, 900))
-    
-    def revert_ability(self,player):
-        pass
 
 def update_board1(playing_list):
     for player in playing_list:
         pygame.draw.circle(screen, player.color, [round(player.posx), round(player.posy)], player.width)
     pygame.display.update()
 
-def update_board(milliseconds,seconds,playing_list):
+
+def update_board(milliseconds, seconds, playing_list):
     sum = seconds * 1000000 + milliseconds
     if not (sum % 4500000 >= 0 and sum % 4500000 <= 200000):
         update_board1(playing_list)
 
-def message_to_screen(msg, color ,FONT, posx, posy):
+
+def message_to_screen(msg, color, FONT, posx, posy):
     message = FONT.render(msg, True, color)
     screen.blit(message, [posx, posy])
     pygame.display.update()
 
-def move_players(playing_list,player_list):
+def move_players(playing_list, player_list):
     for player1 in playing_list:
         if not player1.legal_move(screen):
             playing_list.remove(player1)
@@ -84,13 +57,16 @@ def move_players(playing_list,player_list):
                 player2.points += 1
         else:
             player1.move()
+
             
 def update_players_dirs(playing_list, dir_list):
+
     i = 0
     for player in playing_list:
         if player.is_playing:
             player.update_dir(dir_list[i])
             i += 1
+
 
 def create_players(move_list):
     player_list = []
@@ -98,14 +74,17 @@ def create_players(move_list):
         player_list.append(player(move_list[i], color_list[players_index[i]]))
     return player_list
 
+
 def update_scores(scores, player_list):
     for i in range(len(player_list)):
         scores[i] += player_list[i].points
 
+
 def present_scores(scores):
     for i in range(len(players_index)):
         msg = "player = %s"%(scores[i])
-        message_to_screen(msg,color_list[players_index[i]],FONT,925,(i+1) * 50 +150)
+        message_to_screen(msg, color_list[players_index[i]], FONT, 925, (i+1) * 50 + 150)
+
 
 def draw_menu():
     for i in range(5):
@@ -117,6 +96,7 @@ def draw_menu():
         pygame.draw.rect(screen,BLACK,(605,(i+1) * 100 + 5, 90, 40))
     message_to_screen("START",color_list[i],FONTMENU,700,700)  
     pygame.display.update()
+
 
 def choose_players_moves():
     move_list = []
@@ -147,7 +127,8 @@ def choose_players_moves():
                         players_index.append(i)
                         move = (left,right)
                         move_list.append(move)
-                                          
+
+
 def get_input_from_keys():
     while True:
         for event in pygame.event.get():
@@ -156,8 +137,9 @@ def get_input_from_keys():
             if event.type == pygame.KEYDOWN:
                 return event.key
 
+
 def create_ability1(ability_list):
-    num = random.randrange(1,2)
+    num = random.randrange(2,3)
     found = False
     while not found:
         posx = random.randrange(100,801)
@@ -183,13 +165,11 @@ def create_ability1(ability_list):
 
     if num == 1:
         ability_list.append(big_width(posx,posy))
-        pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))
     if num == 2:
-        ability_list.append(small_width(posx,posy))
-        pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))
+        ability_list.append(small_width(posx,posy))    
     if num == 3:
         ability_list.append(clear_screen(posx,posy))
-        pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))
+    pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))        
 
 def create_ability(ability_list,get_in,seconds):
     if seconds % 7 == 0:
@@ -240,14 +220,14 @@ def run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_
     
     for ability in active_ability_list:
         if ability[0].time_end == seconds:
-            ability[0].revert_ability1(ability[1])
+            ability[0].revert_ability(ability[1])
             ability[0].time_end += 1
             ability_before_finish.append(ability)
             active_ability_list.remove(ability)
         
     for ability in ability_before_finish:
         if ability[0].time_end == seconds:
-            ability[0].revert_ability2(ability[1])
+            ability[0].update_mult_forward(ability[1])
             ability_before_finish.remove(ability)
 
 def run_round(move_list,scores):
