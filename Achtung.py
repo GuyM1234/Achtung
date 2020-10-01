@@ -154,7 +154,7 @@ def get_input_from_keys():
                 return event.key
 
 def create_ability1(ability_list):
-    num = random.randrange(1,2)
+    num = random.randrange(1,4)
     found = False
     while not found:
         posx = random.randrange(100,801)
