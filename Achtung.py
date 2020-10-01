@@ -6,6 +6,7 @@ from time import sleep
 import copy
 import datetime
 from player import player
+from ability import ability
 
 pygame.init()
 width = 1200
@@ -23,40 +24,6 @@ RED = (255,0,0)
 GREEN = (0,255,0)
 color_list = [BLUE, ORNAGE, RED, GREEN, WHITE]
 SQUARESIZE = 100
-
-
-class ability(object):
-    def __init__(self,posx,posy):
-        self.posx = posx
-        self.posy = posy
-        self.time_end = -1
-     
-class big_width(ability):
-    def execute(self,player):
-        player.width = player.width * 2
-        player.mult_forward_move = player.width + 2
-
-    def revert_ability1(self,player):
-        player.width = int(player.width / 2)
-
-    def revert_ability2(self,player):
-        player.mult_forward_move = player.width + 2
-
-class small_width(ability):
-    def execute(self,player):
-        player.width = player.width - 1
-        player.mult_forward_move = player.width + 2
-
-    def revert_ability(self,player):
-        player.width = player.width + 1
-        player.mult_forward_move = player.width + 2
-    
-class clear_screen(ability):
-    def execute(self,player):
-        pygame.draw.rect(screen, BLACK, (0, 0, 900, 900))
-    
-    def revert_ability(self,player):
-        pass
 
 def update_board1(playing_list):
     for player in playing_list:
@@ -154,7 +121,6 @@ def get_input_from_keys():
                 return event.key
 
 def create_ability1(ability_list):
-    num = random.randrange(1,4)
     found = False
     while not found:
         posx = random.randrange(100,801)
@@ -176,20 +142,12 @@ def create_ability1(ability_list):
                 black = False
             i += 1
         if i == 16:
-            found = True
-
-    if num == 1:
-        ability_list.append(big_width(posx,posy))
-        pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))
-    if num == 2:
-        ability_list.append(small_width(posx,posy))
-        pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))
-    if num == 3:
-        ability_list.append(clear_screen(posx,posy))
-        pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))
-
+            found = True  
+    ability_list.append(ability(posx,posy))
+    pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))
+    
 def create_ability(ability_list,get_in,seconds):
-    if seconds % 7 == 0:
+    if seconds % 4 == 0:
         if get_in:
             create_ability1(ability_list)
             return False
@@ -227,8 +185,9 @@ def clear_ability(ability,ability_list):
 
 def run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_before_finish):
     if ability_touched(playing_list,ability_list,active_ability_list):
+        if active_ability_list[-1][0].ability_num == 1:
+            active_ability_list[-1][0].excute_big_width
         active_ability_list[-1][0].execute(active_ability_list[-1][1])
-        clear_ability(active_ability_list[-1][0],ability_list)
         if seconds >= 53:
             num = 60 - seconds
             active_ability_list[-1][0].time_end = 7 - num
