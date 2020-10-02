@@ -139,7 +139,7 @@ def get_input_from_keys():
 
 
 def create_ability1(ability_list):
-    num = random.randrange(2,3)
+    num = random.randrange(1,2)
     found = False
     while not found:
         posx = random.randrange(100,801)
@@ -171,6 +171,7 @@ def create_ability1(ability_list):
         ability_list.append(clear_screen(posx,posy))
     pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))        
 
+
 def create_ability(ability_list,get_in,seconds):
     if seconds % 7 == 0:
         if get_in:
@@ -178,7 +179,8 @@ def create_ability(ability_list,get_in,seconds):
             return False
     else:
         return True
-             
+
+
 def check_square(posx,posy,ability):
     i = -15
     while i <= 15:
@@ -193,6 +195,7 @@ def check_square(posx,posy,ability):
         i+=1
     return False
 
+
 def ability_touched(playing_list,ability_list,active_ability_list):
     for player in (playing_list):
         posx = player.posx + math.cos(player.dir) * player.mult_forward_move
@@ -203,10 +206,12 @@ def ability_touched(playing_list,ability_list,active_ability_list):
                 return True           
     return False
 
+
 def clear_ability(ability,ability_list):
     pygame.draw.rect(screen,BLACK,(ability.posx-15,ability.posy-15,30,30))
     pygame.display.update()
     ability_list.remove(ability)
+
 
 def run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_before_finish):
     if ability_touched(playing_list,ability_list,active_ability_list):
@@ -229,6 +234,7 @@ def run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_
         if ability[0].time_end == seconds:
             ability[0].update_mult_forward(ability[1])
             ability_before_finish.remove(ability)
+
 
 def run_round(move_list,scores):
     player_list = create_players(move_list)
