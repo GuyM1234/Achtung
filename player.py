@@ -1,5 +1,8 @@
 import pygame
 import random
+import math
+
+BLACK = (0,0,0)
 
 class player(object):
     def __init__(self,move,color):
