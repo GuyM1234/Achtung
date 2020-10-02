@@ -14,7 +14,7 @@ class ability(object):
 class big_width(ability):
     def execute(self, player):
         player.width = player.width * 2
-        super.update_mult_forward(self,player)
+        super().update_mult_forward(player)
 
     def revert_ability(self, player):
         player.width = int(player.width / 2)
@@ -23,11 +23,11 @@ class big_width(ability):
 class small_width(ability):
     def execute(self, player):
         player.width = player.width - 1
-        super.update_mult_forward(self,player)
+        super().update_mult_forward(player)
 
     def revert_ability(self, player):
         player.width = int(player.width / 2)
-        super.update_mult_forward(self,player)
+        super.update_mult_forward(player)
         
     
 class clear_screen(ability):
