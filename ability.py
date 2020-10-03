@@ -36,3 +36,12 @@ class clear_screen(ability):
     
     def revert_ability(self, player):
         pass
+
+class move_square(ability):
+    def execute(self, player):
+        player.dir +=90
+
+    def revert_ability(self, player):
+        pass
+
+
