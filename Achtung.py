@@ -53,13 +53,10 @@ def move_players(playing_list, player_list):
         else:
             player1.move()
            
-def update_players_dirs(playing_list, dir_list):
-
-    i = 0
+def update_players_dirs(playing_list):
     for player in playing_list:
         if player.is_playing:
-            player.update_dir(dir_list[i])
-            i += 1
+            player.update_dir()
 
 def create_players(move_list):
     player_list = []
@@ -201,8 +198,6 @@ def clear_ability(ability,ability_list):
 def run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_before_finish):
     if ability_touched(playing_list,ability_list,active_ability_list):
         active_ability_list[-1][0].execute(active_ability_list[-1][1])
-        if type(active_ability_list[-1][0]) == move_square:
-            active_ability_list[-1][1].move_square = True
         clear_ability(active_ability_list[-1][0],ability_list)
         if seconds >= 53:
             num = 60 - seconds
@@ -213,8 +208,6 @@ def run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_
     for ability in active_ability_list:
         if ability[0].time_end == seconds:
             ability[0].revert_ability(ability[1])
-            if type(ability[0]) == move_square:
-                ability[1].player_in_abililty= False
             ability[0].time_end += 1
             ability_before_finish.append(ability)
             active_ability_list.remove(ability)
@@ -227,7 +220,6 @@ def run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_
 def run_round(move_list,scores):
     player_list = create_players(move_list)
     playing_list = copy.copy(player_list)
-    dir_list = [0,0,0,0,0]
     ability_list = []
     get_in = True
     active_ability_list = []
@@ -241,20 +233,24 @@ def run_round(move_list,scores):
             if event.type == pygame.QUIT:
                 sys.exit()
             if event.type == pygame.KEYDOWN:
-                for i in range(len(players_index)):
-                    if chr(event.key) == player_list[i].left and (not player_list[i].move_square):
-                        dir_list[i] = -1/55
+                for player in playing_list:
+                    if not player.move_square:
+                        if chr(event.key) == player.left:
+                            player.update_dir_value = -1/55
+                        if chr(event.key) == player.right:
+                            player.update_dir_value = 1/55
                     else:
-                        dir_list[i] = -1/10
-                    if chr(event.key) == player_list[i].right and (not player_list[i].move_square):
-                        dir_list[i] = 1/55
-                    else: 
-                        dir_list[i] = 1/10
-            if event.type == pygame.KEYUP :
-                for i in range(len(players_index)):
-                    if chr(event.key) == player_list[i].left or chr(event.key) == player_list[i].right:
-                        dir_list[i] = 0
-        update_players_dirs(playing_list,dir_list)
+                        player.update_dir_value = 0
+                        if chr(event.key) == player.left:
+                            player.dir -= 89.55
+                        if chr(event.key) == player.right:
+                            player.dir += 89.55
+            if event.type == pygame.KEYUP:
+                for player in playing_list:
+                    if chr(event.key) == player.left or chr(event.key) == player.right:
+                        player.update_dir_value = 0
+
+        update_players_dirs(playing_list)
         move_players(playing_list,player_list)
         run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_before_finish)
         update_board(milliseconds,seconds,playing_list)
