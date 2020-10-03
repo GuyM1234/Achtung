@@ -11,6 +11,7 @@ from ability import big_width
 from ability import small_width
 from ability import clear_screen
 from ability import move_square
+from ability import move_fast
 
 pygame.init()
 width = 1200
@@ -123,7 +124,7 @@ def get_input_from_keys():
                 return event.key
 
 def create_ability1(ability_list):
-    num = random.randrange(1,5)
+    num = random.randrange(5,6)
     found = False
     while not found:
         posx = random.randrange(100,801)
@@ -156,7 +157,7 @@ def create_ability1(ability_list):
     if num == 4:
         ability_list.append(move_square(posx,posy))
     if num == 5:
-        ability_list.append(move_fast(posx,poxy))    
+        ability_list.append(move_fast(posx,posy))
     pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))        
 
 def create_ability(ability_list,get_in,seconds):
@@ -167,7 +168,7 @@ def create_ability(ability_list,get_in,seconds):
     else:
         return True
 
-def check_square(posx,posy,ability):
+def check_square(posx,posy,ability):AD
     i = -15
     while i <= 15:
         if round(posx) == ability.posx + i and round(posy) == ability.posy - 15:
@@ -275,7 +276,7 @@ def move_fast_players(playing_list):
     for player in playing_list:
         if player.move_fast:
             player.move()
-            player.move()
+
 def main():
     pygame.draw.rect(screen, WHITE, (900, 0, 5, 900))
     game_over = False 
