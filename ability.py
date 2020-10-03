@@ -25,14 +25,11 @@ class small_width(ability):
 
     def revert_ability(self, player):
         player.width = int(player.width / 2)
-        super.update_mult_forward(player)
+        super().update_mult_forward(player)
         
 class clear_screen(ability):
     def execute(self, screen):
         pygame.draw.rect(screen, BLACK, (0, 0, 900, 900))
-    
-    def revert_ability(self, player):
-        pass
 
 class move_square(ability):
     def execute(self, player):
@@ -42,4 +39,7 @@ class move_square(ability):
     def revert_ability(self, player):
         player.move_square = False
 
-
+class move_fast(ability):
+    def execute(self,player):
+        player.move_fast = True
+        
