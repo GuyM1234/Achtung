@@ -261,11 +261,11 @@ def run_round(move_list,scores):
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 for i in range(len(players_index)):
-                    if chr(event.key) == player_list[i].left and (not player_list[i].move_square):
+                    if chr(event.key) == player_list[i].left and not player_list[i].move_square:
                         dir_list[i] = -1/55
                     else:
                         dir_list[i] = -1/10
-                    if chr(event.key) == player_list[i].right and (not player_list[i].move_square):
+                    if chr(event.key) == player_list[i].right and not player_list[i].move_square:
                         dir_list[i] = 1/55
                     else: 
                         dir_list[i] = 1/10
