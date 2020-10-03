@@ -7,40 +7,49 @@ import copy
 import datetime
 from player import player
 from ability import ability
+from ability import big_width
+from ability import small_width
+from ability import clear_screen
+
 
 pygame.init()
 width = 1200
 height = 900
-size = (width,height)
+size = (width, height)
 screen = pygame.display.set_mode(size)
-FONTMENU = pygame.font.SysFont(None ,60)
-FONT = pygame.font.SysFont(None ,40)
-SMALLFONT = pygame.font.SysFont(None ,30)
-BLACK = (0,0,0)
-WHITE = (255,255,255)
-BLUE = (0,0,255)
-ORNAGE = (255,127,80)
-RED = (255,0,0)
-GREEN = (0,255,0)
+FONTMENU = pygame.font.SysFont(None, 60)
+FONT = pygame.font.SysFont(None, 40)
+SMALLFONT = pygame.font.SysFont(None, 30)
+BLACK = (0, 0, 0)
+WHITE = (255, 255, 255)
+BLUE = (0, 0, 255)
+ORNAGE = (255, 127, 80)
+RED = (255, 0, 0)
+GREEN = (0, 255, 0)
 color_list = [BLUE, ORNAGE, RED, GREEN, WHITE]
 SQUARESIZE = 100
+
+
+
 
 def update_board1(playing_list):
     for player in playing_list:
         pygame.draw.circle(screen, player.color, [round(player.posx), round(player.posy)], player.width)
     pygame.display.update()
 
-def update_board(milliseconds,seconds,playing_list):
+
+def update_board(milliseconds, seconds, playing_list):
     sum = seconds * 1000000 + milliseconds
     if not (sum % 4500000 >= 0 and sum % 4500000 <= 200000):
         update_board1(playing_list)
 
-def message_to_screen(msg, color ,FONT, posx, posy):
+
+def message_to_screen(msg, color, FONT, posx, posy):
     message = FONT.render(msg, True, color)
     screen.blit(message, [posx, posy])
     pygame.display.update()
 
-def move_players(playing_list,player_list):
+def move_players(playing_list, player_list):
     for player1 in playing_list:
         if not player1.legal_move(screen):
             playing_list.remove(player1)
@@ -48,13 +57,16 @@ def move_players(playing_list,player_list):
                 player2.points += 1
         else:
             player1.move()
+
             
 def update_players_dirs(playing_list, dir_list):
+
     i = 0
     for player in playing_list:
         if player.is_playing:
             player.update_dir(dir_list[i])
             i += 1
+
 
 def create_players(move_list):
     player_list = []
@@ -62,14 +74,17 @@ def create_players(move_list):
         player_list.append(player(move_list[i], color_list[players_index[i]]))
     return player_list
 
+
 def update_scores(scores, player_list):
     for i in range(len(player_list)):
         scores[i] += player_list[i].points
 
+
 def present_scores(scores):
     for i in range(len(players_index)):
         msg = "player = %s"%(scores[i])
-        message_to_screen(msg,color_list[players_index[i]],FONT,925,(i+1) * 50 +150)
+        message_to_screen(msg, color_list[players_index[i]], FONT, 925, (i+1) * 50 + 150)
+
 
 def draw_menu():
     for i in range(5):
@@ -81,6 +96,7 @@ def draw_menu():
         pygame.draw.rect(screen,BLACK,(605,(i+1) * 100 + 5, 90, 40))
     message_to_screen("START",color_list[i],FONTMENU,700,700)  
     pygame.display.update()
+
 
 def choose_players_moves():
     move_list = []
@@ -111,7 +127,8 @@ def choose_players_moves():
                         players_index.append(i)
                         move = (left,right)
                         move_list.append(move)
-                                          
+
+
 def get_input_from_keys():
     while True:
         for event in pygame.event.get():
@@ -120,7 +137,9 @@ def get_input_from_keys():
             if event.type == pygame.KEYDOWN:
                 return event.key
 
+
 def create_ability1(ability_list):
+    num = random.randrange(1,2)
     found = False
     while not found:
         posx = random.randrange(100,801)
@@ -142,18 +161,26 @@ def create_ability1(ability_list):
                 black = False
             i += 1
         if i == 16:
-            found = True  
-    ability_list.append(ability(posx,posy))
-    pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))
-    
+            found = True
+
+    if num == 1:
+        ability_list.append(big_width(posx,posy))
+    if num == 2:
+        ability_list.append(small_width(posx,posy))    
+    if num == 3:
+        ability_list.append(clear_screen(posx,posy))
+    pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))        
+
+
 def create_ability(ability_list,get_in,seconds):
-    if seconds % 4 == 0:
+    if seconds % 7 == 0:
         if get_in:
             create_ability1(ability_list)
             return False
     else:
         return True
-             
+
+
 def check_square(posx,posy,ability):
     i = -15
     while i <= 15:
@@ -168,6 +195,7 @@ def check_square(posx,posy,ability):
         i+=1
     return False
 
+
 def ability_touched(playing_list,ability_list,active_ability_list):
     for player in (playing_list):
         posx = player.posx + math.cos(player.dir) * player.mult_forward_move
@@ -178,16 +206,17 @@ def ability_touched(playing_list,ability_list,active_ability_list):
                 return True           
     return False
 
+
 def clear_ability(ability,ability_list):
     pygame.draw.rect(screen,BLACK,(ability.posx-15,ability.posy-15,30,30))
     pygame.display.update()
     ability_list.remove(ability)
 
+
 def run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_before_finish):
     if ability_touched(playing_list,ability_list,active_ability_list):
-        if active_ability_list[-1][0].ability_num == 1:
-            active_ability_list[-1][0].excute_big_width
         active_ability_list[-1][0].execute(active_ability_list[-1][1])
+        clear_ability(active_ability_list[-1][0],ability_list)
         if seconds >= 53:
             num = 60 - seconds
             active_ability_list[-1][0].time_end = 7 - num
@@ -196,15 +225,16 @@ def run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_
     
     for ability in active_ability_list:
         if ability[0].time_end == seconds:
-            ability[0].revert_ability1(ability[1])
+            ability[0].revert_ability(ability[1])
             ability[0].time_end += 1
             ability_before_finish.append(ability)
             active_ability_list.remove(ability)
         
     for ability in ability_before_finish:
         if ability[0].time_end == seconds:
-            ability[0].revert_ability2(ability[1])
+            ability[0].update_mult_forward(ability[1])
             ability_before_finish.remove(ability)
+
 
 def run_round(move_list,scores):
     player_list = create_players(move_list)

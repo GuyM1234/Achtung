@@ -5,8 +5,8 @@ import math
 BLACK = (0,0,0)
 
 class player(object):
-    def __init__(self, move, color):
-        self.color = color 
+    def __init__(self,move,color):
+        self.color = color
         self.width = 4
         self.dir = random.randint(1,360)
         self.posx = random.randint(200,700)
@@ -18,6 +18,7 @@ class player(object):
         self.mult_forward_move = self.width + 2
 
     def legal_move(self, screen):
+        
         if self.is_border_touched():
             return False        
         posx = self.posx + math.cos(self.dir) * self.mult_forward_move
