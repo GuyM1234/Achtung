@@ -123,7 +123,7 @@ def get_input_from_keys():
                 return event.key
 
 def create_ability1(ability_list):
-    num = random.randrange(4,5)
+    num = random.randrange(1,5)
     found = False
     while not found:
         posx = random.randrange(100,801)
@@ -155,7 +155,8 @@ def create_ability1(ability_list):
         ability_list.append(clear_screen(posx,posy))
     if num == 4:
         ability_list.append(move_square(posx,posy))
-        
+    if num == 5:
+        ability_list.append(move_fast(posx,poxy))    
     pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))        
 
 def create_ability(ability_list,get_in,seconds):
@@ -186,7 +187,10 @@ def ability_touched(playing_list,ability_list,active_ability_list):
         posy = player.posy + math.sin(player.dir) * player.mult_forward_move
         for ability in (ability_list):
             if check_square(posx,posy,ability):
-                active_ability_list.append((ability,player))
+                if type(ability) == clear_screen:
+                    ability.execute(screen)
+                else:
+                    active_ability_list.append((ability,player))
                 return True           
     return False
 
@@ -252,6 +256,7 @@ def run_round(move_list,scores):
 
         update_players_dirs(playing_list)
         move_players(playing_list,player_list)
+        move_fast_players(playing_list)
         run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_before_finish)
         update_board(milliseconds,seconds,playing_list)
         get_in = create_ability(ability_list,get_in,seconds)
@@ -266,6 +271,11 @@ def is_game_over(scores):
             return True
     return False
 
+def move_fast_players(playing_list):
+    for player in playing_list:
+        if player.move_fast:
+            player.move()
+            player.move()
 def main():
     pygame.draw.rect(screen, WHITE, (900, 0, 5, 900))
     game_over = False 
