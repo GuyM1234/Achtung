@@ -17,6 +17,7 @@ class player(object):
         self.right = move[1]
         self.mult_forward_move = self.width + 2
         self.move_square = False
+        self.update_dir_value = 0
 
     def legal_move(self, screen):
         
@@ -33,8 +34,8 @@ class player(object):
         self.posx += math.cos(self.dir)
         self.posy += math.sin(self.dir)
 
-    def update_dir(self, num):
-        self.dir += num
+    def update_dir(self):
+        self.dir += self.update_dir_value
 
     def is_border_touched(self):
         if self.posx > 895 or self.posx < 5 or self.posy > 895 or self.posy < 5:
