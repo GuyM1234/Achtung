@@ -41,7 +41,7 @@ class move_square(ability):
 
 class move_fast(ability):
     def execute(self,player):
-        player.move_fast = True
+        player.move_times = 2
         
     def revert_ability(self, player):
-        player.move_fast = False
+        player.move_times = 1
