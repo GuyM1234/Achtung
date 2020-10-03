@@ -43,3 +43,5 @@ class move_fast(ability):
     def execute(self,player):
         player.move_fast = True
         
+    def revert_ability(self, player):
+        player.move_fast = False
