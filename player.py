@@ -16,6 +16,7 @@ class player(object):
         self.left= move[0]
         self.right = move[1]
         self.mult_forward_move = self.width + 2
+        self.move_square = False
 
     def legal_move(self, screen):
         
