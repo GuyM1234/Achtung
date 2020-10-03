@@ -1,4 +1,6 @@
+import pygame
 
+BLACK = (0,0,0)
 class ability(object):
     def __init__(self, posx, posy):
         self.posx = posx
@@ -8,7 +10,6 @@ class ability(object):
     def update_mult_forward(self,player):
         player.mult_forward_move = player.width + 2
 
-
 class big_width(ability):
     def execute(self, player):
         player.width = player.width * 2
@@ -17,7 +18,6 @@ class big_width(ability):
     def revert_ability(self, player):
         player.width = int(player.width / 2)
         
-
 class small_width(ability):
     def execute(self, player):
         player.width = player.width - 1
@@ -27,9 +27,8 @@ class small_width(ability):
         player.width = int(player.width / 2)
         super.update_mult_forward(player)
         
-    
 class clear_screen(ability):
-    def execute(self, player):
+    def execute(self, screen):
         pygame.draw.rect(screen, BLACK, (0, 0, 900, 900))
     
     def revert_ability(self, player):
@@ -37,9 +36,10 @@ class clear_screen(ability):
 
 class move_square(ability):
     def execute(self, player):
-        player.dir +=90
+        player.update_dir_value = 0
+        player.move_square = True
 
     def revert_ability(self, player):
-        pass
+        player.move_square = False
 
 
