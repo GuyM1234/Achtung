@@ -10,7 +10,7 @@ from ability import ability
 from ability import big_width
 from ability import small_width
 from ability import clear_screen
-
+from ability import move_square
 
 pygame.init()
 width = 1200
@@ -139,7 +139,7 @@ def get_input_from_keys():
 
 
 def create_ability1(ability_list):
-    num = random.randrange(1,2)
+    num = random.randrange(4,5)
     found = False
     while not found:
         posx = random.randrange(100,801)
@@ -169,6 +169,9 @@ def create_ability1(ability_list):
         ability_list.append(small_width(posx,posy))    
     if num == 3:
         ability_list.append(clear_screen(posx,posy))
+    if num == 4:
+        ability_list.append(move_square(posx,posy))
+        
     pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))        
 
 
@@ -216,6 +219,8 @@ def clear_ability(ability,ability_list):
 def run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_before_finish):
     if ability_touched(playing_list,ability_list,active_ability_list):
         active_ability_list[-1][0].execute(active_ability_list[-1][1])
+        if type(active_ability_list[-1][0]) == move_square:
+            active_ability_list[-1][1].move_square = True
         clear_ability(active_ability_list[-1][0],ability_list)
         if seconds >= 53:
             num = 60 - seconds
@@ -226,6 +231,8 @@ def run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_
     for ability in active_ability_list:
         if ability[0].time_end == seconds:
             ability[0].revert_ability(ability[1])
+            if type(ability[0]) == move_square:
+                ability[1].player_in_abililty= False
             ability[0].time_end += 1
             ability_before_finish.append(ability)
             active_ability_list.remove(ability)
@@ -248,18 +255,21 @@ def run_round(move_list,scores):
         x = datetime.datetime.now()
         seconds = int(x.strftime("%S"))
         milliseconds = int(x.strftime("%f"))
-        sleep(0.007)
-
+        sleep(0.007)    
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
             if event.type == pygame.KEYDOWN:
                 for i in range(len(players_index)):
-                    if chr(event.key) == player_list[i].left:
+                    if chr(event.key) == player_list[i].left and (not player_list[i].move_square):
                         dir_list[i] = -1/55
-                    if chr(event.key) == player_list[i].right:
+                    else:
+                        dir_list[i] = -1/10
+                    if chr(event.key) == player_list[i].right and (not player_list[i].move_square):
                         dir_list[i] = 1/55
-            if event.type == pygame.KEYUP:
+                    else: 
+                        dir_list[i] = 1/10
+            if event.type == pygame.KEYUP :
                 for i in range(len(players_index)):
                     if chr(event.key) == player_list[i].left or chr(event.key) == player_list[i].right:
                         dir_list[i] = 0
