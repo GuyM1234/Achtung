@@ -30,6 +30,7 @@ GREEN = (0, 255, 0)
 color_list = [BLUE, ORNAGE, RED, GREEN, WHITE]
 SQUARESIZE = 100
 
+
 def update_board1(playing_list):
     for player in playing_list:
         pygame.draw.circle(screen, player.color, [round(player.posx), round(player.posy)], player.width)
@@ -47,14 +48,13 @@ def message_to_screen(msg, color, FONT, posx, posy):
 
 def move_players(playing_list, player_list,ability_list):
     for player1 in playing_list:
-        for i in range(player1.move_times):
-            if not player1.legal_move(screen):
-                playing_list.remove(player1)
-                for player2 in playing_list:
-                    player2.points += 1
-                break
-            else:
-                player1.move()
+        if not player1.legal_move(screen):
+            playing_list.remove(player1)
+            for player2 in playing_list:
+                player2.points += 1
+            break
+        else:
+            player1.move()
            
 def update_players_dirs(playing_list):
     for player in playing_list:
