@@ -45,14 +45,16 @@ def message_to_screen(msg, color, FONT, posx, posy):
     screen.blit(message, [posx, posy])
     pygame.display.update()
 
-def move_players(playing_list, player_list):
+def move_players(playing_list, player_list,ability_list):
     for player1 in playing_list:
-        if not player1.legal_move(screen):
-            playing_list.remove(player1)
-            for player2 in playing_list:
-                player2.points += 1
-        else:
-            player1.move()
+        for i in range(player1.move_times):
+            if not player1.legal_move(screen):
+                playing_list.remove(player1)
+                for player2 in playing_list:
+                    player2.points += 1
+                break
+            else:
+                player1.move()
            
 def update_players_dirs(playing_list):
     for player in playing_list:
@@ -168,7 +170,7 @@ def create_ability(ability_list,get_in,seconds):
     else:
         return True
 
-def check_square(posx,posy,ability):AD
+def check_square(posx,posy,ability):
     i = -15
     while i <= 15:
         if round(posx) == ability.posx + i and round(posy) == ability.posy - 15:
@@ -182,34 +184,39 @@ def check_square(posx,posy,ability):AD
         i+=1
     return False
 
-def ability_touched(playing_list,ability_list,active_ability_list):
-    for player in (playing_list):
+def return_ability_touched(playing_list,ability_list):
+    for player in playing_list:
         posx = player.posx + math.cos(player.dir) * player.mult_forward_move
         posy = player.posy + math.sin(player.dir) * player.mult_forward_move
-        for ability in (ability_list):
+        for ability in ability_list:
             if check_square(posx,posy,ability):
-                if type(ability) == clear_screen:
-                    ability.execute(screen)
-                else:
-                    active_ability_list.append((ability,player))
-                return True           
-    return False
+                return ((ability,player))       
+    return 0
+
+def update_time_end(ability,seconds):
+    if seconds >= 53:
+        num = 60 - seconds
+        ability.time_end = 7 - num
+    else:
+        ability.time_end = seconds + 7
 
 def clear_ability(ability,ability_list):
     pygame.draw.rect(screen,BLACK,(ability.posx-15,ability.posy-15,30,30))
     pygame.display.update()
     ability_list.remove(ability)
 
-def run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_before_finish):
-    if ability_touched(playing_list,ability_list,active_ability_list):
-        active_ability_list[-1][0].execute(active_ability_list[-1][1])
-        clear_ability(active_ability_list[-1][0],ability_list)
-        if seconds >= 53:
-            num = 60 - seconds
-            active_ability_list[-1][0].time_end = 7 - num
+def check_abilities(playing_list,ability_list,active_ability_list,seconds):
+    a_and_p = return_ability_touched(playing_list,ability_list)
+    if a_and_p != 0:
+        if type(a_and_p[0]) == clear_screen:
+            a_and_p[0].execute(screen)
         else:
-            active_ability_list[-1][0].time_end = seconds + 7
-    
+            a_and_p[0].execute(a_and_p[1])     
+            update_time_end(a_and_p[0],seconds)
+            active_ability_list.append(a_and_p)
+            clear_ability(a_and_p[0],ability_list)
+
+def revert_abilities(active_ability_list,ability_before_finish,seconds):
     for ability in active_ability_list:
         if ability[0].time_end == seconds:
             ability[0].revert_ability(ability[1])
@@ -256,9 +263,9 @@ def run_round(move_list,scores):
                         player.update_dir_value = 0
 
         update_players_dirs(playing_list)
-        move_players(playing_list,player_list)
-        move_fast_players(playing_list)
-        run_abilities(playing_list,ability_list,active_ability_list,seconds,ability_before_finish)
+        check_abilities(playing_list,ability_list,active_ability_list,seconds)
+        revert_abilities(active_ability_list,ability_before_finish,seconds)
+        move_players(playing_list,player_list,ability_list)    
         update_board(milliseconds,seconds,playing_list)
         get_in = create_ability(ability_list,get_in,seconds)
 
@@ -271,11 +278,6 @@ def is_game_over(scores):
         if scores[i] >= 5 * len(players_index):
             return True
     return False
-
-def move_fast_players(playing_list):
-    for player in playing_list:
-        if player.move_fast:
-            player.move()
 
 def main():
     pygame.draw.rect(screen, WHITE, (900, 0, 5, 900))

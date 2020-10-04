@@ -18,8 +18,8 @@ class player(object):
         self.mult_forward_move = self.width + 2
         self.move_square = False
         self.update_dir_value = 0
-        self.move_fast = False
-        
+        self.move_times = 1
+
     def legal_move(self, screen):
         if self.is_border_touched():
             return False        
