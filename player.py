@@ -3,6 +3,7 @@ import random
 import math
 
 BLACK = (0,0,0)
+WHITE = (255,255,255)
 
 class player(object):
     def __init__(self,move,color):
@@ -26,7 +27,7 @@ class player(object):
         posx = self.posx + math.cos(self.dir) * self.mult_forward_move
         posy = self.posy + math.sin(self.dir) * self.mult_forward_move
         color = screen.get_at((round(posx),round(posy)))
-        if color != BLACK:
+        if color != BLACK and color != WHITE:
             return False
         return True
 
