@@ -30,15 +30,15 @@ GREEN = (0, 255, 0)
 color_list = [BLUE, ORNAGE, RED, GREEN, WHITE]
 SQUARESIZE = 100
 
-def update_board1(playing_list):
-    for player in playing_list:
-        pygame.draw.circle(screen, player.color, [round(player.posx), round(player.posy)], player.width)
+def update_player(player):
+    pygame.draw.circle(screen, player.color, [round(player.posx), round(player.posy)], player.width)
     pygame.display.update()
 
 def update_board(milliseconds, seconds, playing_list):
     sum = seconds * 1000000 + milliseconds
-    if not (sum % 4500000 >= 0 and sum % 4500000 <= 200000):
-        update_board1(playing_list)
+    for player in playing_list:
+        if not (sum % 4500000 >= 0 and sum % 4500000 <= 50000 * player.width):
+            update_player(player)
 
 def message_to_screen(msg, color, FONT, posx, posy):
     message = FONT.render(msg, True, color)
@@ -126,7 +126,7 @@ def get_input_from_keys():
                 return event.key
 
 def create_ability1(ability_list):
-    num = random.randrange(5,6)
+    num = random.randrange(1,6)
     found = False
     while not found:
         posx = random.randrange(100,801)
@@ -163,33 +163,34 @@ def create_ability1(ability_list):
     pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))        
 
 def create_ability(ability_list,get_in,seconds):
-    if seconds % 7 == 0:
+    if seconds % 3 == 0:
         if get_in:
             create_ability1(ability_list)
             return False
     else:
         return True
 
-def check_square(posx,posy,ability):
-    i = -15
-    while i <= 15:
-        if round(posx) == ability.posx + i and round(posy) == ability.posy - 15:
-            return True
-        if round(posx) == ability.posx - 15 and round(posy) == ability.posy + i:
-            return True
-        if round(posx) == ability.posx + 15 and round(posy) == ability.posy + i:
-            return True
-        if round(posx) == ability.posx + i and round(posy) == ability.posy + 15:
-            return True
-        i+=1
-    return False
+# def check_square(posx,posy,ability):
+#     i = -15
+#     while i <= 15:
+#         if round(posx) == ability.posx + i and round(posy) == ability.posy - 15:
+#             return True
+#         if round(posx) == ability.posx - 15 and round(posy) == ability.posy + i:
+#             return True
+#         if round(posx) == ability.posx + 15 and round(posy) == ability.posy + i:
+#             return True
+#         if round(posx) == ability.posx + i and round(posy) == ability.posy + 15:
+#             return True
+#         i+=1
+#     return False
 
 def return_ability_touched(playing_list,ability_list):
     for player in playing_list:
         posx = player.posx + math.cos(player.dir) * player.mult_forward_move
         posy = player.posy + math.sin(player.dir) * player.mult_forward_move
+        color = screen.get_at((round(posx),round(posy)))     
         for ability in ability_list:
-            if check_square(posx,posy,ability):
+            if color == WHITE:
                 return ((ability,player))       
     return 0
 
