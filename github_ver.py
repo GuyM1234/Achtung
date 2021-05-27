@@ -5,13 +5,11 @@ import math
 from time import sleep
 import copy
 import datetime
-from player import player
-from ability import ability
-from ability import big_width
-from ability import small_width
-from ability import clear_screen
-from ability import move_square
-from ability import move_fast
+from player import player 
+from ability import ability, clear_screen, move_square, move_fast
+
+
+QuestionMark = pygame.image.load(r'QuestionMark.png')
 
 pygame.init()
 width = 1200
@@ -27,55 +25,68 @@ BLUE = (0, 0, 255)
 ORNAGE = (255, 127, 80)
 RED = (255, 0, 0)
 GREEN = (0, 255, 0)
-color_list = [BLUE, ORNAGE, RED, GREEN, WHITE]
+YELOW = (255,255,0)
+color_list = [BLUE, ORNAGE, RED, GREEN,YELOW]
 SQUARESIZE = 100
 
-
+# update every move of each player on to the board
 def update_board1(playing_list):
     for player in playing_list:
         pygame.draw.circle(screen, player.color, [round(player.posx), round(player.posy)], player.width)
     pygame.display.update()
 
+# making spaces in the player trace every specific period of time
 def update_board(milliseconds, seconds, playing_list):
     sum = seconds * 1000000 + milliseconds
     if not (sum % 4500000 >= 0 and sum % 4500000 <= 200000):
         update_board1(playing_list)
+
 
 def message_to_screen(msg, color, FONT, posx, posy):
     message = FONT.render(msg, True, color)
     screen.blit(message, [posx, posy])
     pygame.display.update()
 
+# call the move function for each player given that his move is legal
 def move_players(playing_list, player_list,ability_list):
     for player1 in playing_list:
-        if not player1.legal_move(screen):
-            playing_list.remove(player1)
-            for player2 in playing_list:
-                player2.points += 1
-            break
-        else:
-            player1.move()
-           
+        for i in range(player1.move_times):
+            if not player1.legal_move(screen):
+                playing_list.remove(player1)
+                for player2 in playing_list:
+                    player2.points += 1
+                break
+            else:
+                player1.move()
+
+# for ech player update his dir coordinated to what button the player pushed
 def update_players_dirs(playing_list):
     for player in playing_list:
         if player.is_playing:
             player.update_dir()
 
+# creating all the players and making a list of them so we could trace them easily
 def create_players(move_list):
     player_list = []
     for i in range(len(players_index)):
         player_list.append(player(move_list[i], color_list[players_index[i]]))
     return player_list
 
+#  update the scores each round
 def update_scores(scores, player_list):
     for i in range(len(player_list)):
         scores[i] += player_list[i].points
 
+# updaing the scores on the screen
 def present_scores(scores):
     for i in range(len(players_index)):
         msg = "player = %s"%(scores[i])
         message_to_screen(msg, color_list[players_index[i]], FONT, 925, (i+1) * 50 + 150)
 
+    message_to_screen("PRESS ANY KEY", WHITE, FONT, 950, 600)
+    message_to_screen("TO START", WHITE, FONT, 950, 650)
+
+# draw the menu: where tha players choose their buttons in oreder to move at any direction
 def draw_menu():
     for i in range(5):
         msg = "player %s"%(i+1)
@@ -84,9 +95,12 @@ def draw_menu():
         pygame.draw.rect(screen,BLACK,(455,(i+1) * 100 + 5, 90, 40))     
         pygame.draw.rect(screen,WHITE,(600,(i+1) * 100, 100, 50))
         pygame.draw.rect(screen,BLACK,(605,(i+1) * 100 + 5, 90, 40))
-    message_to_screen("START",color_list[i],FONTMENU,700,700)  
+    pygame.draw.rect(screen,WHITE,(690, 690, 155, 55))
+    pygame.draw.rect(screen,BLACK,(695, 695, 145, 45))     
+    message_to_screen("START",WHITE,FONTMENU,700,700)  
     pygame.display.update()
 
+# let the players choose their moves, keeping track with each player moves in move_list
 def choose_players_moves():
     move_list = []
     global players_index
@@ -98,6 +112,7 @@ def choose_players_moves():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 posx = event.pos[0]
                 posy = event.pos[1]
+                #  if pressed start: continue the game
                 if posx > 700 and posx < 850 and posy > 700 and posy< 745:
                     pygame.draw.rect(screen, BLACK, (0, 0, 900, 900))
                     pygame.display.update()
@@ -117,6 +132,7 @@ def choose_players_moves():
                         move = (left,right)
                         move_list.append(move)
 
+# get the key pushed and return the key as a move for the player
 def get_input_from_keys():
     while True:
         for event in pygame.event.get():
@@ -125,9 +141,11 @@ def get_input_from_keys():
             if event.type == pygame.KEYDOWN:
                 return event.key
 
+#create a random ability
 def create_ability1(ability_list):
-    num = random.randrange(5,6)
+    num = random.randint(3,5)
     found = False
+    # loop until a legal position for the ability in other words a vacant place for the ability to show
     while not found:
         posx = random.randrange(100,801)
         posy = random.randrange(100,801)
@@ -149,19 +167,21 @@ def create_ability1(ability_list):
             i += 1
         if i == 16:
             found = True
-
-    if num == 1:
-        ability_list.append(big_width(posx,posy))
-    if num == 2:
-        ability_list.append(small_width(posx,posy))    
+    # create one type of ability correspondingly to the random the number and paint it in white and question mark
     if num == 3:
         ability_list.append(clear_screen(posx,posy))
-    if num == 4:
+        pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))
+        screen.blit(QuestionMark,(posx-15,posy-15))
+    elif num == 4:
         ability_list.append(move_square(posx,posy))
-    if num == 5:
+        pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))
+        screen.blit(QuestionMark,(posx-15,posy-15))
+    elif num == 5:
         ability_list.append(move_fast(posx,posy))
-    pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))        
+        pygame.draw.rect(screen,WHITE,(posx-15,posy-15,30,30))
+        screen.blit(QuestionMark,(posx-15,posy-15))   
 
+# calls for create_ability1 every 7 seconds
 def create_ability(ability_list,get_in,seconds):
     if seconds % 7 == 0:
         if get_in:
@@ -170,29 +190,26 @@ def create_ability(ability_list,get_in,seconds):
     else:
         return True
 
-def check_square(posx,posy,ability):
-    i = -15
-    while i <= 15:
-        if round(posx) == ability.posx + i and round(posy) == ability.posy - 15:
-            return True
-        if round(posx) == ability.posx - 15 and round(posy) == ability.posy + i:
-            return True
-        if round(posx) == ability.posx + 15 and round(posy) == ability.posy + i:
-            return True
-        if round(posx) == ability.posx + i and round(posy) == ability.posy + 15:
-            return True
-        i+=1
-    return False
-
+# checks fo each player if he touched any of the abilities on the screen, if so, return the apecific ability and player
 def return_ability_touched(playing_list,ability_list):
-    for player in playing_list:
-        posx = player.posx + math.cos(player.dir) * player.mult_forward_move
-        posy = player.posy + math.sin(player.dir) * player.mult_forward_move
-        for ability in ability_list:
-            if check_square(posx,posy,ability):
-                return ((ability,player))       
-    return 0
+    # loop through players
+    for player in playing_list:       
+        if not player.is_border_touched():
+            posx = player.posx + math.cos(player.dir) * 6
+            posy = player.posy + math.sin(player.dir) * 6
+            color = screen.get_at((round(posx),round(posy)))
+            # checks to see if tocuched
+            if color == WHITE:
+                # loop through abilities
+                for ability in ability_list:
+                    range_x = posx - (ability.posx - 15)
+                    range_y = (posy - (ability.posy - 15))
+                    if range_x <=40  and range_x >= -10 \
+                        and range_y <=40 and range_y >=-10:
+                        return (ability,player)
+    return None
 
+# set the time when tha ability will stop
 def update_time_end(ability,seconds):
     if seconds >= 53:
         num = 60 - seconds
@@ -200,14 +217,16 @@ def update_time_end(ability,seconds):
     else:
         ability.time_end = seconds + 7
 
+# delete the ability from ability_list and deleting the white sqare
 def clear_ability(ability,ability_list):
     pygame.draw.rect(screen,BLACK,(ability.posx-15,ability.posy-15,30,30))
     pygame.display.update()
     ability_list.remove(ability)
 
+# if ability is touched, exectue the ability and set the time when the ability will stop
 def check_abilities(playing_list,ability_list,active_ability_list,seconds):
     a_and_p = return_ability_touched(playing_list,ability_list)
-    if a_and_p != 0:
+    if a_and_p != None:
         if type(a_and_p[0]) == clear_screen:
             a_and_p[0].execute(screen)
         else:
@@ -216,27 +235,27 @@ def check_abilities(playing_list,ability_list,active_ability_list,seconds):
             active_ability_list.append(a_and_p)
             clear_ability(a_and_p[0],ability_list)
 
-def revert_abilities(active_ability_list,ability_before_finish,seconds):
+# checks to see if any ability has come to its end, if so rever her and remove her from the active list
+def revert_abilities(active_ability_list,seconds):
     for ability in active_ability_list:
         if ability[0].time_end == seconds:
             ability[0].revert_ability(ability[1])
-            ability[0].time_end += 1
-            ability_before_finish.append(ability)
             active_ability_list.remove(ability)
         
-    for ability in ability_before_finish:
-        if ability[0].time_end == seconds:
-            ability[0].update_mult_forward(ability[1])
-            ability_before_finish.remove(ability)
-
+# this function is all that happens during one round.
+# waiting for input from player(where to move), if no input just go straight
+# 1. update all the dirs correspondingly to move square
+# 2. check to see if any ability was activated
+# 3. check to see if any ability is finished, if so revert her influence
 def run_round(move_list,scores):
+    pygame.draw.rect(screen, BLACK, (940, 590, 250, 200))
     player_list = create_players(move_list)
     playing_list = copy.copy(player_list)
     ability_list = []
     get_in = True
     active_ability_list = []
-    ability_before_finish = []
-    while len(playing_list) > 0:
+    # loop untill only one is left
+    while len(playing_list) > 1:
         x = datetime.datetime.now()
         seconds = int(x.strftime("%S"))
         milliseconds = int(x.strftime("%f"))
@@ -263,42 +282,56 @@ def run_round(move_list,scores):
                         player.update_dir_value = 0
 
         update_players_dirs(playing_list)
+
+        # check to see if any ability was activated
         check_abilities(playing_list,ability_list,active_ability_list,seconds)
-        revert_abilities(active_ability_list,ability_before_finish,seconds)
-        move_players(playing_list,player_list,ability_list)    
+
+        # check to see if any ability is finished, if so revert her influence
+        revert_abilities(active_ability_list,seconds)
+
+        # move the players with all the checks that is required
+        move_players(playing_list,player_list,ability_list)
+
+        # update the board
         update_board(milliseconds,seconds,playing_list)
-        get_in = create_ability(ability_list,get_in,seconds)
-
-
-        
+        get_in = create_ability(ability_list,get_in,seconds) 
     update_scores(scores,player_list)
-    
+
+# check to see if any of the players ha won the game 
 def is_game_over(scores):
     for i in range(len(players_index)):
         if scores[i] >= 5 * len(players_index):
             return True
     return False
 
-def main():
+# get the winner player
+def winner_color(players_index,scores):
+     for i in range(len(scores)):
+        if scores[i] >= 5 * len(players_index):
+             return color_list[players_index[i]]
+
+def main() :
+    # graphics
     pygame.draw.rect(screen, WHITE, (900, 0, 5, 900))
-    game_over = False 
     draw_menu()
     scores = [0,0,0,0,0]
     move_list = choose_players_moves()
     present_scores(scores)
     msg = "winning score is %s "%(5 * len(players_index))
     message_to_screen(msg,RED,SMALLFONT,960,50)
-    while not game_over:
+    # while game is not over continue running the rounds
+    while not is_game_over(scores):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 sys.exit()
-            if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.type == pygame.KEYDOWN:
                 pygame.draw.rect(screen, BLACK, (0, 0, 900, 900))
                 run_round(move_list,scores)
                 pygame.draw.rect(screen, BLACK, (905, 200, 200, 500))
-                present_scores(scores)
-                game_over = is_game_over(scores)           
-    pygame.draw.rect(screen, BLACK, (905, 0, 200, 900))
+                present_scores(scores)          
+    pygame.draw.rect(screen, BLACK, (0, 0, 900, 900))
+    message_to_screen("PLAYER WON",winner_color(players_index,scores),FONTMENU,350,350)
     pygame.time.wait(10000)
 
-main()
+if __name__ == "__main__":
+    main()
